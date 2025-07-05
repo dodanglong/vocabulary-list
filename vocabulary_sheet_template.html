@@ -39,6 +39,7 @@
         <th>Phiên âm</th>
         <th>Ví dụ</th>
         <th>Nghĩa chính</th>
+        <th>Nghĩa ví dụ</th>
         <th>Diễn giải</th>
         <th>Phát âm</th>
       </tr>
@@ -64,6 +65,7 @@ fetch(url)
         <td>${row.IPA || ""}</td>        
         <td>${row["Example Sentence"] || ""}</td>
         <td>${row["Meaning in Vietnamese"] || ""}</td>
+        <td>${row["Vietnamese Example"] || ""}</td>
         <td>${(row.Definition || "").replace(/\n/g, "<br>")}</td>
         <td><button class="audio-btn" onclick="speak('${row.Word}')">🔊 Nghe</button></td>
       `;
