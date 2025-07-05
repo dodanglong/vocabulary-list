@@ -64,7 +64,7 @@ fetch(url)
         <td>${row["Part of Speech"] || ""}</td>
         <td>${row.IPA || ""}</td>        
         <td>${row["Example Sentence"] || ""}</td>
-        <td>${row["Meaning in Vietnamese"] || ""}</td>
+        <td>${row["Vietnamese"] || ""}</td>
         <td>${row["Vietnamese Example"] || ""}</td>
         <td>${(row.Definition || "").replace(/\n/g, "<br>")}</td>
         <td><button class="audio-btn" onclick="speak('${row.Word}')">🔊 Nghe</button></td>
