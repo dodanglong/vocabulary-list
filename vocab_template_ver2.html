@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📚 Danh sách Từ vựng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f9f9f9;
+    }
+    .sticky-search {
+      position: sticky;
+      top: 0;
+      background: #f9f9f9;
+      padding: 1rem 0;
+      z-index: 10;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .audio-btn {
+      background: none;
+      border: none;
+      color: #007BFF;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📚 Danh sách Từ vựng</h1>
+  <div class="sticky-search">
+    <input type="text" id="search" placeholder="Tìm kiếm từ...">
+  </div>
+  
+  <table id="vocabTable">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Từ</th>
+        <th>Loại từ</th>
+        <th>Phiên âm</th>
+        <th>Ví dụ</th>
+        <th>Nghĩa chính</th>
+        <th>Nghĩa ví dụ</th>
+        <th>Diễn giải</th>
+        <th>Phát âm</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetID = "1ipqegEaJ2GBzIfOqtEhTPktbLO9UH_rVnEt0apiU2Ig";
+    const sheetName = "Sheet1";
+    const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#vocabTable tbody");
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.STT || ""}</td>
+            <td>${row.Word || ""}</td>
+            <td>${row["Part of Speech"] || ""}</td>
+            <td>${row.IPA || ""}</td>
+            <td>${row["Example Sentence"] || ""}</td>
+            <td>${row.Meaning || ""}</td>
+            <td>${row["Vietnamese Example"] || ""}</td>
+            <td>${(row.Definition || "").replace(/\n/g, "<br>")}</td>
+            <td><button class="audio-btn" onclick="speak('${row.Word}')">🔊 Nghe</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    function speak(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'en-US';
+      window.speechSynthesis.speak(msg);
+    }
+
+    document.getElementById("search").addEventListener("input", function () {
+      const value = this.value.toLowerCase();
+      document.querySelectorAll("#vocabTable tbody tr").forEach(tr => {
+        const word = tr.children[1].textContent.toLowerCase();
+        tr.style.display = word.includes(value) ? "" : "none";
+      });
+    });
+  </script>
+
+</body>
+</html>
