@@ -53,7 +53,7 @@
   <div class="sticky-search">
     <input type="text" id="search" placeholder="Tìm kiếm từ...">
   </div>
-  
+
   <table id="vocabTable">
     <thead>
       <tr>
@@ -66,51 +66,65 @@
         <th>Nghĩa ví dụ</th>
         <th>Diễn giải</th>
         <th>Phát âm</th>
+        <th>Đã thuộc chưa?</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <script>
-    const sheetID = "1ipqegEaJ2GBzIfOqtEhTPktbLO9UH_rVnEt0apiU2Ig";
-    const sheetName = "Sheet1";
-    const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
+<script>
+  const sheetID = "1ipqegEaJ2GBzIfOqtEhTPktbLO9UH_rVnEt0apiU2Ig";
+  const sheetName = "Sheet1";
+  const url = `https://opensheet.elk.sh/${sheetID}/${sheetName}`;
+  const updateURL = "https://script.google.com/macros/s/AKfycbw7waIzm9QKK9zGIyG-DCjlyprKjFmTybHmJ4b-o2F14hloObF2LRpHQ-dSOW9txSts/exec"; // 🔁 Thay bằng URL script bạn đã deploy
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.querySelector("#vocabTable tbody");
-        data.forEach(row => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.STT || ""}</td>
-            <td>${row.Word || ""}</td>
-            <td>${row["Part of Speech"] || ""}</td>
-            <td>${row.IPA || ""}</td>
-            <td>${row["Example Sentence"] || ""}</td>
-            <td>${row.Meaning || ""}</td>
-            <td>${row["Vietnamese Example"] || ""}</td>
-            <td>${(row.Definition || "").replace(/\n/g, "<br>")}</td>
-            <td><button class="audio-btn" onclick="speak('${row.Word}')">🔊 Nghe</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      });
-
-    function speak(text) {
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'en-US';
-      window.speechSynthesis.speak(msg);
-    }
-
-    document.getElementById("search").addEventListener("input", function () {
-      const value = this.value.toLowerCase();
-      document.querySelectorAll("#vocabTable tbody tr").forEach(tr => {
-        const word = tr.children[1].textContent.toLowerCase();
-        tr.style.display = word.includes(value) ? "" : "none";
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector("#vocabTable tbody");
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        const isLearned = row.Learned?.toLowerCase() === "true";
+        tr.innerHTML = `
+          <td>${row.STT || ""}</td>
+          <td>${row.Word || ""}</td>
+          <td>${row["Part of Speech"] || ""}</td>
+          <td>${row.IPA || ""}</td>
+          <td>${row["Example Sentence"] || ""}</td>
+          <td>${row.Meaning || ""}</td>
+          <td>${row["Vietnamese Example"] || ""}</td>
+          <td>${(row.Definition || "").replace(/\n/g, "<br>")}</td>
+          <td><button class="audio-btn" onclick="speak('${row.Word}')">🔊 Nghe</button></td>
+          <td><input type="checkbox" ${isLearned ? "checked" : ""} onchange="updateLearned('${row.Word}', this.checked)"></td>
+        `;
+        tbody.appendChild(tr);
       });
     });
-  </script>
+
+  function speak(text) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US';
+    window.speechSynthesis.speak(msg);
+  }
+
+  function updateLearned(word, learned) {
+    fetch(updateURL, {
+      method: "POST",
+      body: JSON.stringify({ word, learned }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => res.text()).then(console.log).catch(console.error);
+  }
+
+  document.getElementById("search").addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+    document.querySelectorAll("#vocabTable tbody tr").forEach(tr => {
+      const word = tr.children[1].textContent.toLowerCase();
+      tr.style.display = word.includes(value) ? "" : "none";
+    });
+  });
+</script>
 
 </body>
 </html>
